@@ -86,7 +86,10 @@ Then you can send a POST request to the /data path to trigger the dynamic proces
 
 Example dynamic path request:
 ```shell
-curl -X POST -H "Content-Type: application/json" -d '{"key1": "value1", "key2": "value2", "key3": "value3"}' http://localhost:8080/data
+curl -X POST -H "Content-Type: application/
+
+
+" -d '{"key1": "value1", "key2": "value2", "key3": "value3"}' http://localhost:8080/data
 ```
 
 ## Example
@@ -113,7 +116,7 @@ services:
 ```
 
 ## Test
-```json
+```shell
 curl -X POST -H "Content-Type: application/json" -d '{
   "order_id": "12345",
   "customer_name": "John Doe",
