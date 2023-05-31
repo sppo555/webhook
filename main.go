@@ -11,41 +11,41 @@ import (
 )
 
 const (
-	WebhookPath    = "/webhook"      // Webhook 路徑
-	HeartcheckPath = "/heartcheck"   // 心跳檢查路徑
-	Port           = ":8080"         // 伺服器埠號
+	WebhookPath    = "/webhook"    // Webhook path
+	HeartcheckPath = "/heartcheck" // Heartbeat check path
+	Port           = ":8080"       // Server port
 )
 
 var (
-	TGAPIToken   = os.Getenv("TG_API_TOKEN") // Telegram Bot API 金鑰
-	TGChatID     = os.Getenv("TG_CHAT_ID")   // Telegram 聊天 ID
-	URLPath      = os.Getenv("URL_PATH")     // 路徑設定
+	TGAPIToken   = os.Getenv("TG_API_TOKEN") // Telegram Bot API token
+	TGChatID     = os.Getenv("TG_CHAT_ID")   // Telegram chat ID
+	URLPath      = os.Getenv("URL_PATH")     // Path configuration
 	PathHandlers = make(map[string]http.HandlerFunc)
 )
 
 func main() {
 	initLogger()
 
-	http.HandleFunc(WebhookPath, handleWebhook)     // 設定 Webhook 路徑的處理函式
-	http.HandleFunc(HeartcheckPath, handleHeartcheck) // 設定心跳檢查路徑的處理函式
+	http.HandleFunc(WebhookPath, handleWebhook)       // Set the handler for the webhook path
+	http.HandleFunc(HeartcheckPath, handleHeartcheck) // Set the handler for the heartbeat check path
 
 	paths := append(strings.Split(URLPath, ","), WebhookPath, HeartcheckPath)
 	for _, path := range paths {
 		path = strings.TrimSpace(path)
 		if path != "" {
 			filterKeys := strings.Split(os.Getenv(strings.ToUpper(path)+"_FILTER_KEY"), ",")
-			PathHandlers["/"+path] = createDynamicHandler(filterKeys, path) // 設定動態路徑的處理函式
+			PathHandlers["/"+path] = createDynamicHandler(filterKeys, path) // Set the handler for dynamic paths
 		}
 	}
 
-	http.HandleFunc("/", handleNotFound) // 設定找不到路徑的處理函式
+	http.HandleFunc("/", handleNotFound) // Set the handler for not found paths
 
 	for path, handler := range PathHandlers {
-		http.HandleFunc(path, handler) // 設定所有路徑的處理函式
+		http.HandleFunc(path, handler) // Set handlers for all paths
 	}
 
 	log.Printf("Webhook server started on port %s", Port)
-	log.Fatal(http.ListenAndServe(Port, nil)) // 啟動伺服器
+	log.Fatal(http.ListenAndServe(Port, nil)) // Start the server
 }
 
 func initLogger() {
@@ -65,9 +65,9 @@ func handleWebhook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	message := processJSONData(data) // 處理 JSON 資料，轉換為訊息
+	message := processJSONData(data) // Process JSON data and convert it to a message
 
-	sendToTelegram(WebhookPath, message) // 將訊息傳送到 Telegram
+	sendToTelegram(WebhookPath, message) // Send the message to Telegram
 
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintln(w, "Webhook request processed")
@@ -102,9 +102,9 @@ func createDynamicHandler(filterKeys []string, path string) http.HandlerFunc {
 			return
 		}
 
-		message := processJSONDataWithFilterKeys(data, filterKeys) // 處理 JSON 資料，根據篩選鍵值轉換為訊息
+		message := processJSONDataWithFilterKeys(data, filterKeys) // Process JSON data with filter keys and convert it to a message
 
-		sendToTelegram(path, message) // 將訊息傳送到 Telegram
+		sendToTelegram(path, message) // Send the message to Telegram
 
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprintln(w, "Dynamic request processed")
@@ -119,7 +119,7 @@ func handleNotFound(w http.ResponseWriter, r *http.Request) {
 func processJSONData(data map[string]interface{}) string {
 	message := ""
 	for key, value := range data {
-		message += processJSONKeyValue(key, value, 0) // 將 JSON 資料鍵值對轉換為訊息
+		message += processJSONKeyValue(key, value, 0) // Convert JSON key-value pairs to a message
 	}
 	return message
 }
@@ -128,7 +128,7 @@ func processJSONDataWithFilterKeys(data map[string]interface{}, filterKeys []str
 	message := ""
 	for _, key := range filterKeys {
 		if val, ok := data[key]; ok {
-			message += processJSONKeyValue(key, val, 0) // 根據篩選鍵值將 JSON 資料轉換為訊息
+			message += processJSONKeyValue(key, val, 0) // Convert JSON data based on filter keys to a message
 		}
 	}
 	return message
@@ -141,15 +141,15 @@ func processJSONKeyValue(key string, value interface{}, level int) string {
 	case map[string]interface{}:
 		message += "\n"
 		for nestedKey, nestedValue := range v {
-			message += processJSONKeyValue(nestedKey, nestedValue, level+1) // 遞迴處理巢狀 JSON 資料
+			message += processJSONKeyValue(nestedKey, nestedValue, level+1) // Recursively process nested JSON data
 		}
 	case []interface{}:
 		message += "\n"
 		for _, nestedValue := range v {
-			message += processJSONKeyValue(key, nestedValue, level+1) // 遞迴處理陣列型態的 JSON 資料
+			message += processJSONKeyValue(key, nestedValue, level+1) // Recursively process array-type JSON data
 		}
 	default:
-		message += fmt.Sprintf("%v\n", v) // 處理其他值型態，將值格式化為訊息
+		message += fmt.Sprintf("%v\n", v) // Process other value types and format the value as a message
 	}
 	return message
 }
@@ -163,7 +163,7 @@ func sendToTelegram(path, message string) {
 	apiURL := fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", TGAPIToken)
 	payload := fmt.Sprintf(`{"chat_id": "%s", "text": "%s"}`, TGChatID, message)
 
-	resp, err := http.Post(apiURL, "application/json", strings.NewReader(payload)) // 發送 POST 請求到 Telegram API
+	resp, err := http.Post(apiURL, "application/json", strings.NewReader(payload)) // Send a POST request to the Telegram API
 	if err != nil {
 		log.Printf("Failed to send message to Telegram: %v", err)
 		return
@@ -178,4 +178,3 @@ func sendToTelegram(path, message string) {
 
 	log.Printf("Message sent to Telegram for path: %s", path)
 }
-
