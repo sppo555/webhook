@@ -147,7 +147,6 @@ Here's the content that will be forwarded to Telegram based on the requests to /
 
 For the /webhook request, the following content will be forwarded to Telegram:
 ```shell
-Message Content:
 Order ID: 12345
 Customer Name: John Doe
 Total: 27.97
@@ -165,12 +164,10 @@ Items:
 ```
 For the /users request, only the customer_name field will be filtered and forwarded to Telegram:
 ```shell
-Message Content:
 Customer Name: John Doe
 ```
 For the /items request, only the items field will be filtered and forwarded to Telegram:
 ```shell
-Message Content:
 Items:
   - Product ID: P001
     Product Name: Product 1
@@ -182,7 +179,6 @@ Items:
 ```
 For the /orders request, only the order_id, total, and shipping_address fields will be filtered and forwarded to Telegram:
 ```shell
-Message Content:
 Order ID: 12345
 Total: 27.97
 Shipping Address:
