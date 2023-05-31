@@ -46,10 +46,10 @@ services:
     environment:
       TG_CHAT_ID: "<Your_TG_CHAT_ID>"
       TG_API_TOKEN: "<Your_TG_API_TOKEN>"
-      URL_PATH: "key1,key2,key3"
-      KEY1_FILTER_KEY: "value1"
-      KEY2_FILTER_KEY: "value2"
-      KEY3_FILTER_KEY: "value3"
+      URL_PATH: "PATH1,PATH2,PATH3"
+      PATH1_FILTER_KEY: "KEY1"
+      PATH1_FILTER_KEY: "KEY1,KEY2"
+      PATH3_FILTER_KEY: "KEY1,KEY2,KEY3,KEY4"
 ```
 ```shell
 docker-compose up -d
